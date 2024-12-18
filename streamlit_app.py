@@ -22,7 +22,7 @@ st.set_page_config(page_title="Data Analysis Interface", layout="wide")
 
 # --- Session State Initialization ---
 if "current_view" not in st.session_state:
-    st.session_state["current_view"] = "Product One 1.1"
+    st.session_state["current_view"] = "1.1"
 
 if "css_selectors" not in st.session_state:
     st.session_state["css_selectors"] = {}
@@ -73,29 +73,16 @@ actual_values = {
     "purchasable": "true",
 }
 
-# Initialize default CSS selectors and extract methods if not present
-for param in parameters:
-    if param["key"] not in st.session_state["css_selectors"]:
-        st.session_state["css_selectors"][param["key"]] = ""
-    if param["key"] not in st.session_state["extract_methods"]:
-        st.session_state["extract_methods"][param["key"]] = ""
-
-# --- Cluster and Subcluster Buttons ---
-st.write("### Select a Subcluster")
-clusters = {
-    "Cluster 1": ["Product One 1.1", "Product One 1.2", "Product One 1.3", "Product One 1.4"],
-    "Cluster 2": ["Product One 2.1", "Product One 2.2", "Product One 2.3", "Product One 2.4"],
-    "Cluster 3": ["Product One 3.1", "Product One 3.2", "Product One 3.3", "Product One 3.4"],
-}
-
-# Display subclusters as buttons
-cols = st.columns(4)
-for cluster, subclusters in clusters.items():
-    for idx, subcluster in enumerate(subclusters):
-        if cols[idx % 4].button(subcluster):
-            st.session_state["current_view"] = subcluster
-
-st.write("---")
+# --- Function to Colorize Text ---
+def colorize_text(expected, actual):
+    """
+    Returns both expected and actual text in green if they match.
+    Returns both texts in red if they differ.
+    """
+    if expected == actual:
+        return (f"<span style='color:green;'>{expected}</span>", f"<span style='color:green;'>{actual}</span>")
+    else:
+        return (f"<span style='color:red;'>{expected}</span>", f"<span style='color:red;'>{actual}</span>")
 
 # --- Layout: Screenshot and Comparison Table ---
 col1, col2 = st.columns([1.5, 2])
@@ -112,24 +99,21 @@ with col2:
     for param in parameters:
         key = param["key"]
 
+        # Colorize both values
+        colored_expected, colored_actual = colorize_text(expected_values.get(key, "N/A"), actual_values.get(key, "N/A"))
+
         # Row for Parameter, Expected, and Actual Values
         row_cols = st.columns([1, 2, 2])
         with row_cols[0]:
-            st.markdown(f"<h5>{param['name']}</h5>", unsafe_allow_html=True)
+            st.markdown(f"<h6 style='margin-bottom: 0px;'>{param['name']}</h6>", unsafe_allow_html=True)
         with row_cols[1]:
-            st.write(f"**Expected:** {expected_values.get(key, 'N/A')}")
+            st.markdown(f"**Expected:** {colored_expected}", unsafe_allow_html=True)
         with row_cols[2]:
-            st.write(f"**Actual:** {actual_values.get(key, 'N/A')}")
+            st.markdown(f"**Actual:** {colored_actual}", unsafe_allow_html=True)
 
         # Input fields for CSS Selector and Extract Method
-        input_cols = st.columns([2, 1])  # Split the input fields into two
+        input_cols = st.columns([2, 1])
         with input_cols[0]:
-            st.text_input(
-                "",
-                key=f"css_selector_{key}"
-            )
+            st.text_input("", key=f"css_selector_{key}")
         with input_cols[1]:
-            st.text_input(
-                "",
-                key=f"extract_method_{key}"
-            )
+            st.text_input("", key=f"extract_method_{key}")
