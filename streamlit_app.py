@@ -84,6 +84,24 @@ def colorize_text(expected, actual):
     else:
         return (f"<span style='color:red;'>{expected}</span>", f"<span style='color:red;'>{actual}</span>")
 
+# --- Cluster and Subcluster Buttons ---
+st.write("### Select a Subcluster")
+clusters = {
+    "Cluster 1": ["1.1", "1.2", "1.3", "1.4"],
+    "Cluster 2": ["2.1", "2.2", "2.3", "2.4"],
+    "Cluster 3": ["3.1", "3.2", "3.3", "3.4"],
+}
+
+# Display subclusters as buttons
+cols = st.columns(4)
+for cluster, subclusters in clusters.items():
+    for idx, subcluster in enumerate(subclusters):
+        button_label = f"Product One {subcluster}"
+        if cols[idx % 4].button(button_label):
+            st.session_state["current_view"] = subcluster
+
+st.write("---")
+
 # --- Layout: Screenshot and Comparison Table ---
 col1, col2 = st.columns([1.5, 2])
 
